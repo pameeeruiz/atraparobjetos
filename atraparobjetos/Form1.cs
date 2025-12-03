@@ -24,6 +24,19 @@ namespace atraparobjetos
             StartGame();
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            CenterCatcher();
+        }
+
+        private void CenterCatcher()
+        {
+            pbCatcher.Location = new Point(
+                (panelGame.Width - pbCatcher.Width) / 2,
+                panelGame.Height - 30
+            );
+        }
+
         private void StartGame()
         {
             ClearBalls();
@@ -196,5 +209,7 @@ namespace atraparobjetos
             timerSpawn?.Dispose();
             timerTime?.Dispose();
         }
+
+        
     }
 }

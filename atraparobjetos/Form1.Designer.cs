@@ -40,100 +40,116 @@ namespace atraparobjetos
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new Container();
-            this.panelGame = new Panel();
-            this.pbCatcher = new PictureBox();
-            this.lblScore = new Label();
-            this.lblTime = new Label();
-            this.lblResult = new Label();
-            this.btnRestart = new Button();
-            this.timerGame = new Timer(this.components);
-            this.timerSpawn = new Timer(this.components);
-            this.timerTime = new Timer(this.components);
-
-            // Form1
+            this.components = new System.ComponentModel.Container();
+            this.panelGame = new System.Windows.Forms.Panel();
+            this.pbCatcher = new System.Windows.Forms.PictureBox();
+            this.lblScore = new System.Windows.Forms.Label();
+            this.lblTime = new System.Windows.Forms.Label();
+            this.lblResult = new System.Windows.Forms.Label();
+            this.btnRestart = new System.Windows.Forms.Button();
+            this.timerGame = new System.Windows.Forms.Timer(this.components);
+            this.timerSpawn = new System.Windows.Forms.Timer(this.components);
+            this.timerTime = new System.Windows.Forms.Timer(this.components);
+            this.panelGame.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbCatcher)).BeginInit();
             this.SuspendLayout();
-            this.ClientSize = new Size(700, 520);
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            // 
+            // panelGame
+            // 
+            this.panelGame.BackColor = System.Drawing.Color.AliceBlue;
+            this.panelGame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelGame.Controls.Add(this.pbCatcher);
+            this.panelGame.Location = new System.Drawing.Point(20, 20);
+            this.panelGame.Name = "panelGame";
+            this.panelGame.Size = new System.Drawing.Size(660, 380);
+            this.panelGame.TabIndex = 0;
+            this.panelGame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PanelGame_MouseMove);
+            // 
+            // pbCatcher
+            // 
+            this.pbCatcher.BackColor = System.Drawing.Color.DimGray;
+            this.pbCatcher.Location = new System.Drawing.Point(280, 350);
+            this.pbCatcher.Name = "pbCatcher";
+            this.pbCatcher.Size = new System.Drawing.Size(100, 20);
+            this.pbCatcher.TabIndex = 1;
+            this.pbCatcher.TabStop = false;
+            // 
+            // lblScore
+            // 
+            this.lblScore.AutoSize = true;
+            this.lblScore.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblScore.Location = new System.Drawing.Point(20, 420);
+            this.lblScore.Name = "lblScore";
+            this.lblScore.Size = new System.Drawing.Size(84, 23);
+            this.lblScore.TabIndex = 1;
+            this.lblScore.Text = "Puntos: 0";
+            // 
+            // lblTime
+            // 
+            this.lblTime.AutoSize = true;
+            this.lblTime.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTime.Location = new System.Drawing.Point(140, 420);
+            this.lblTime.Name = "lblTime";
+            this.lblTime.Size = new System.Drawing.Size(91, 23);
+            this.lblTime.TabIndex = 2;
+            this.lblTime.Text = "Tiempo: 0";
+            // 
+            // lblResult
+            // 
+            this.lblResult.AutoSize = true;
+            this.lblResult.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblResult.Location = new System.Drawing.Point(260, 420);
+            this.lblResult.Name = "lblResult";
+            this.lblResult.Size = new System.Drawing.Size(0, 23);
+            this.lblResult.TabIndex = 3;
+            // 
+            // btnRestart
+            // 
+            this.btnRestart.Location = new System.Drawing.Point(560, 415);
+            this.btnRestart.Name = "btnRestart";
+            this.btnRestart.Size = new System.Drawing.Size(120, 30);
+            this.btnRestart.TabIndex = 4;
+            this.btnRestart.Text = "Reiniciar";
+            this.btnRestart.UseVisualStyleBackColor = true;
+            this.btnRestart.Click += new System.EventHandler(this.BtnRestart_Click);
+            // 
+            // timerGame
+            // 
+            this.timerGame.Interval = 20;
+            this.timerGame.Tick += new System.EventHandler(this.TimerGame_Tick);
+            // 
+            // timerSpawn
+            // 
+            this.timerSpawn.Interval = 800;
+            this.timerSpawn.Tick += new System.EventHandler(this.TimerSpawn_Tick);
+            // 
+            // timerTime
+            // 
+            this.timerTime.Interval = 1000;
+            this.timerTime.Tick += new System.EventHandler(this.TimerTime_Tick);
+            // 
+            // Form1
+            // 
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(700, 520);
+            this.Controls.Add(this.panelGame);
+            this.Controls.Add(this.lblScore);
+            this.Controls.Add(this.lblTime);
+            this.Controls.Add(this.lblResult);
+            this.Controls.Add(this.btnRestart);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Atrapa Objetos - Catch the Ball";
-            this.KeyPreview = true;
-            this.BackColor = Color.White;
-
-            // panelGame
-            this.panelGame.Location = new Point(20, 20);
-            this.panelGame.Size = new Size(660, 380);
-            this.panelGame.BorderStyle = BorderStyle.FixedSingle;
-            this.panelGame.BackColor = Color.AliceBlue;
-            this.panelGame.Name = "panelGame";
-            this.panelGame.TabIndex = 0;
-            this.panelGame.MouseMove += new MouseEventHandler(this.PanelGame_MouseMove);
-            this.Controls.Add(this.panelGame);
-
-            // pbCatcher
-            this.pbCatcher.Size = new Size(100, 20);
-            this.pbCatcher.BackColor = Color.DimGray;
-            this.pbCatcher.Location = new Point((this.panelGame.Width - this.pbCatcher.Width) / 2, this.panelGame.Height - 30);
-            this.pbCatcher.Name = "pbCatcher";
-            this.pbCatcher.TabIndex = 1;
-            this.pbCatcher.TabStop = false;
-            this.panelGame.Controls.Add(this.pbCatcher);
-
-            // lblScore
-            this.lblScore.AutoSize = true;
-            this.lblScore.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            this.lblScore.Location = new Point(20, 420);
-            this.lblScore.Name = "lblScore";
-            this.lblScore.Size = new Size(70, 19);
-            this.lblScore.Text = "Puntos: 0";
-            this.Controls.Add(this.lblScore);
-
-            // lblTime
-            this.lblTime.AutoSize = true;
-            this.lblTime.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            this.lblTime.Location = new Point(140, 420);
-            this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new Size(80, 19);
-            this.lblTime.Text = "Tiempo: 0";
-            this.Controls.Add(this.lblTime);
-
-            // lblResult
-            this.lblResult.AutoSize = true;
-            this.lblResult.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            this.lblResult.Location = new Point(260, 420);
-            this.lblResult.Name = "lblResult";
-            this.lblResult.Size = new Size(0, 19);
-            this.lblResult.Text = "";
-            this.Controls.Add(this.lblResult);
-
-            // btnRestart
-            this.btnRestart.Location = new Point(560, 415);
-            this.btnRestart.Name = "btnRestart";
-            this.btnRestart.Size = new Size(120, 30);
-            this.btnRestart.Text = "Reiniciar";
-            this.btnRestart.UseVisualStyleBackColor = true;
-            this.btnRestart.Click += new EventHandler(this.BtnRestart_Click);
-            this.Controls.Add(this.btnRestart);
-
-            // timerGame
-            this.timerGame.Interval = 20;
-            this.timerGame.Tick += new EventHandler(this.TimerGame_Tick);
-
-            // timerSpawn
-            this.timerSpawn.Interval = 800;
-            this.timerSpawn.Tick += new EventHandler(this.TimerSpawn_Tick);
-
-            // timerTime
-            this.timerTime.Interval = 1000;
-            this.timerTime.Tick += new EventHandler(this.TimerTime_Tick);
-
-            // Eventos del formulario
-            this.FormClosing += new FormClosingEventHandler(this.Form1_FormClosing);
-            this.KeyDown += new KeyEventHandler(this.Form1_KeyDown);
-
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.panelGame.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbCatcher)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
     }
 }
