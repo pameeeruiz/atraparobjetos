@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -10,17 +12,34 @@ namespace atraparobjetos
     {
         private readonly Acciones acciones;
         private readonly Random rnd = new Random();
-        private readonly List<PictureBox> balls = new List<PictureBox>();
+
+        // ahora guardamos objetos de juego como PictureBox
+        private readonly List<PictureBox> fallingBoxes = new List<PictureBox>();
+
+        // opciones de spawn: (clave, imagen)
+        private readonly List<Tuple<string, Image>> spawnOptions = new List<Tuple<string, Image>>();
 
         private int score;
         private int timeRemaining;
         private int targetScore;
         private int fallSpeed;
 
+        // tamaño visual de cada objeto
+        private const int ObjectSize = 48; // aumentar un poco para PNG legibles
+
         public Form1()
         {
             acciones = new Acciones();
             InitializeComponent();
+
+            // Suscribir Paint y double buffering antes de arrancar timers
+            panelGame.Paint += PanelGame_Paint;
+            typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(panelGame, true, null);
+
+            // Cargar imágenes antes de iniciar el juego para evitar que el TimerSpawn se dispare sin imágenes
+            LoadSpawnImages();
+
             StartGame();
         }
 
@@ -81,51 +100,170 @@ namespace atraparobjetos
 
         private void ClearBalls()
         {
-            foreach (var b in balls.ToList())
+            // Eliminar todos los PictureBox creados dinámicamente
+            foreach (var pb in fallingBoxes.ToArray())
             {
-                panelGame.Controls.Remove(b);
-                b.Dispose();
+                if (panelGame.Controls.Contains(pb))
+                {
+                    panelGame.Controls.Remove(pb);
+                }
+                // No destruimos las imágenes compartidas en spawnOptions aquí
+                pb.Image = null;
+                pb.Dispose();
             }
-            balls.Clear();
+            fallingBoxes.Clear();
+            panelGame.Invalidate();
+        }
+
+        // Carga imágenes de spawn con su clave. Intenta Resources primero y luego archivos en output/Resources.
+        private void LoadSpawnImages()
+        {
+            spawnOptions.Clear();
+
+            var names = new[]
+            {
+                "pastel_rosa",
+                "pastel_chocolate",
+                "cupcake",
+                "dona_rosada",
+                "galleta_redonda",
+                "pastel_malo"
+            };
+
+            // 1) Intentar cargar desde Properties.Resources por ResourceManager (más fiable que reflexión directa)
+            foreach (var name in names)
+            {
+                try
+                {
+                    var obj = Properties.Resources.ResourceManager.GetObject(name);
+                    if (obj is Image resImg)
+                    {
+                        spawnOptions.Add(Tuple.Create(name, (Image)resImg));
+                    }
+                }
+                catch
+                {
+                    // Ignorar y continuar
+                }
+            }
+
+            // 2) Si faltan, intentar cargar desde archivos en salida (Application.StartupPath) y subcarpetas
+            var basePaths = new[]
+            {
+                Application.StartupPath,
+                Path.Combine(Application.StartupPath, "Resources"),
+                Path.Combine(Application.StartupPath, "images"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources")
+            };
+
+            foreach (var name in names)
+            {
+                if (spawnOptions.Any(t => string.Equals(t.Item1, name, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                foreach (var basePath in basePaths)
+                {
+                    var file = Path.Combine(basePath, name + ".png");
+                    var img = acciones.LoadImageFromFile(file);
+                    if (img != null)
+                    {
+                        spawnOptions.Add(Tuple.Create(name, img));
+                        break;
+                    }
+                }
+            }
+
+            // 3) Si no se cargó ninguna imagen, crear placeholders (rectángulos con texto) en lugar de círculos.
+            if (spawnOptions.Count == 0)
+            {
+                foreach (var name in names.Take(3))
+                {
+                    var bmp = acciones.CreatePlaceholderImage(ObjectSize, name);
+                    spawnOptions.Add(Tuple.Create(name, (Image)bmp));
+                }
+            }
+        }
+
+        // Crear un PictureBox aleatorio arriba del panel
+        private void SpawnPictureBox()
+        {
+            if (spawnOptions.Count == 0) return;
+
+            var x = acciones.GetRandomX(rnd, panelGame.Width, ObjectSize);
+
+            // elegir aleatoriamente una opción (clave + imagen)
+            var opt = spawnOptions[rnd.Next(spawnOptions.Count)];
+            var key = opt.Item1;
+            var img = opt.Item2;
+
+            var pb = new PictureBox
+            {
+                Width = ObjectSize,
+                Height = ObjectSize,
+                Left = x,
+                Top = -ObjectSize,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                Image = img,
+                Tag = string.Equals(key, "pastel_malo", StringComparison.OrdinalIgnoreCase) ? "bad" : "good",
+                BackColor = Color.Transparent
+            };
+
+            // Añadir al panel y a la lista de seguimiento
+            panelGame.Controls.Add(pb);
+            // Asegurar que el catcher permanezca visible encima de las cajas
+            pb.BringToFront();
+            pbCatcher.BringToFront();
+
+            fallingBoxes.Add(pb);
         }
 
         // Este handler debe coincidir con lo que hay en Form1.Designer.cs
         private void TimerSpawn_Tick(object sender, EventArgs e)
         {
-            const int size = 28;
-            var x = acciones.GetRandomX(rnd, panelGame.Width, size);
-            var color = Color.FromArgb(rnd.Next(50, 256), rnd.Next(50, 256), rnd.Next(50, 256));
+            SpawnPictureBox();
+        }
 
-            var pb = new PictureBox
-            {
-                Size = new Size(size, size),
-                Location = new Point(x, -size),
-                Tag = "ball",
-                Image = acciones.CreateBallBitmap(size, color),
-                SizeMode = PictureBoxSizeMode.CenterImage,
-                BackColor = Color.Transparent
-            };
-
-            panelGame.Controls.Add(pb);
-            pb.BringToFront();
-            balls.Add(pb);
+        // Dejar el Paint del panel para fondos u otros elementos. Ya no dibujamos las bolas manualmente.
+        private void PanelGame_Paint(object sender, PaintEventArgs e)
+        {
+            // Mantener configuración de alta calidad para cualquier otro dibujo
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            // No dibujar las imágenes aquí: se usan PictureBox controls
         }
 
         // Este handler debe coincidir con lo que hay en Form1.Designer.cs
         private void TimerGame_Tick(object sender, EventArgs e)
         {
-            foreach (var ball in balls.ToList())
+            // Avanzar todos los PictureBox
+            for (int i = fallingBoxes.Count - 1; i >= 0; i--)
             {
-                ball.Top += fallSpeed;
+                var pb = fallingBoxes[i];
 
-                if (acciones.IsCollision(ball, pbCatcher))
+                // Mover hacia abajo
+                pb.Top += fallSpeed;
+
+                // Colisión con el catcher (usar Bounds del PictureBox)
+                if (pb.Bounds.IntersectsWith(pbCatcher.Bounds))
                 {
-                    score++;
+                    var tag = pb.Tag as string;
+                    if (tag == "bad")
+                    {
+                        score--;
+                    }
+                    else // "good"
+                    {
+                        score++;
+                    }
+
                     lblScore.Text = $"Puntos: {score}";
 
-                    panelGame.Controls.Remove(ball);
-                    balls.Remove(ball);
-                    ball.Dispose();
+                    // eliminar el objeto (no eliminamos la imagen compartida en spawnOptions)
+                    if (panelGame.Controls.Contains(pb)) panelGame.Controls.Remove(pb);
+                    pb.Image = null;
+                    pb.Dispose();
+                    fallingBoxes.RemoveAt(i);
 
                     // ajustar dificultad con la ayuda de Acciones
                     fallSpeed = acciones.ScaleFallSpeed(fallSpeed, score, increaseEvery: 3, maxSpeed: 12);
@@ -135,14 +273,22 @@ namespace atraparobjetos
                         EndGame(true);
                         return;
                     }
+
+                    continue;
                 }
-                else if (ball.Top > panelGame.Height)
+
+                // Si sale del panel, eliminar
+                if (pb.Top > panelGame.Height)
                 {
-                    panelGame.Controls.Remove(ball);
-                    balls.Remove(ball);
-                    ball.Dispose();
+                    if (panelGame.Controls.Contains(pb)) panelGame.Controls.Remove(pb);
+                    pb.Image = null;
+                    pb.Dispose();
+                    fallingBoxes.RemoveAt(i);
                 }
             }
+
+            // Repintar por si cambia algo del panel
+            panelGame.Invalidate();
         }
 
         // Este handler debe coincidir con lo que hay en Form1.Designer.cs
@@ -208,8 +354,8 @@ namespace atraparobjetos
             timerGame?.Dispose();
             timerSpawn?.Dispose();
             timerTime?.Dispose();
-        }
 
-        
+            // No se disponen aquí las imágenes de spawnOptions porque pueden ser recursos compartidos.
+        }
     }
 }
