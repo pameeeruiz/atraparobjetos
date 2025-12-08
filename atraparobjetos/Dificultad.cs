@@ -4,16 +4,13 @@ using System.Linq;
 
 namespace atraparobjetos
 {
-    /// <summary>
-    /// Clase gestora de niveles y parámetros de dificultad.
-    /// </summary>
     public static class Dificultad
     {
         private class Nivel
         {
             public string Nombre { get; }
             public List<string> ObjetosPermitidos { get; }
-            public int VelocidadInicial { get; }   // píxeles por tick
+            public int VelocidadInicial { get; }   // velocidad base
             public int SpawnRate { get; }         // ms entre spawn
             public int LimiteMalosAtrapados { get; }
             public int LimiteBuenosDejados { get; }
@@ -54,33 +51,35 @@ namespace atraparobjetos
                 "pastel_malo"
             };
 
+            // Fácil: velocidad moderada, constante
             facil = new Nivel(
                 "Fácil",
                 new[] { "pastel_rosa", "pastel_chocolate", "dona_rosada", "pastel_malo" },
                 velocidadInicial: 3,
-                spawnRate: 1000,
+                spawnRate: 1200,
                 limiteMalosAtrapados: 5,
                 limiteBuenosDejados: 6,
                 objetivoPuntos: 33
             );
 
+            // Medio: un poquito más rápido, constante
             medio = new Nivel(
                 "Medio",
                 baseObjects,
                 velocidadInicial: 4,
-                spawnRate: 800,
+                spawnRate: 900,
                 limiteMalosAtrapados: 4,
                 limiteBuenosDejados: 4,
                 objetivoPuntos: 33
             );
 
+            // Difícil: empieza como medio y aumenta suavemente
             var dificilObjects = new List<string>(baseObjects) { "cupcake_dorado", "pastel_quemado" };
-
             dificil = new Nivel(
                 "Difícil",
                 dificilObjects,
-                velocidadInicial: 5,
-                spawnRate: 600,
+                velocidadInicial: 4,
+                spawnRate: 700,
                 limiteMalosAtrapados: 2,
                 limiteBuenosDejados: 3,
                 objetivoPuntos: 33
@@ -88,8 +87,6 @@ namespace atraparobjetos
 
             actual = facil;
         }
-
-        // ------------------ API pública ------------------
 
         public static string NivelActualNombre => actual?.Nombre ?? "Fácil";
 
@@ -102,7 +99,7 @@ namespace atraparobjetos
         public static int LimiteMalosAtrapadosActual => actual?.LimiteMalosAtrapados ?? int.MaxValue;
         public static int LimiteBuenosDejadosActual => actual?.LimiteBuenosDejados ?? int.MaxValue;
         public static int ObjetivoActual => actual?.ObjetivoPuntos ?? 33;
-        public static int TiempoActual => 60; // tiempo base fijo si quieres
+        public static int TiempoActual => 60;
 
         public static List<string> ObtenerObjetosPermitidos() => actual?.ObjetosPermitidos.Select(NormalizarNombre).ToList() ?? new List<string>();
 
