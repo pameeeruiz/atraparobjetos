@@ -56,7 +56,7 @@ namespace atraparobjetos
             // 
             // panelGame
             // 
-            this.panelGame.BackColor = System.Drawing.Color.AliceBlue;
+            this.panelGame.BackColor = System.Drawing.Color.LavenderBlush;
             this.panelGame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelGame.Controls.Add(this.pbCatcher);
             this.panelGame.Location = new System.Drawing.Point(20, 20);
@@ -67,7 +67,7 @@ namespace atraparobjetos
             // 
             // pbCatcher
             // 
-            this.pbCatcher.BackColor = System.Drawing.Color.DimGray;
+            this.pbCatcher.BackColor = System.Drawing.Color.Brown;
             this.pbCatcher.Location = new System.Drawing.Point(280, 350);
             this.pbCatcher.Name = "pbCatcher";
             this.pbCatcher.Size = new System.Drawing.Size(100, 20);
@@ -105,12 +105,13 @@ namespace atraparobjetos
             // 
             // btnRestart
             // 
+            this.btnRestart.BackColor = System.Drawing.Color.Wheat;
             this.btnRestart.Location = new System.Drawing.Point(560, 415);
             this.btnRestart.Name = "btnRestart";
             this.btnRestart.Size = new System.Drawing.Size(120, 30);
             this.btnRestart.TabIndex = 4;
             this.btnRestart.Text = "Reiniciar";
-            this.btnRestart.UseVisualStyleBackColor = true;
+            this.btnRestart.UseVisualStyleBackColor = false;
             this.btnRestart.Click += new System.EventHandler(this.BtnRestart_Click);
             // 
             // timerGame
