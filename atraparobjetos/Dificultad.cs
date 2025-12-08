@@ -118,7 +118,7 @@ namespace atraparobjetos
             // Objetos especiales
             if (key == "cupcake_dorado") return 5;      // bueno especial
             if (key == "pastel_quemado") return -5;     // malo especial
-            if (key == "pastel_malo") return -1;        // malo clásico
+            if (key == "pastel_malo") return -1;        // malo 
 
             // Objetos buenos normales
             if (new[] { "pastel_rosa", "pastel_chocolate", "cupcake", "dona_rosada", "galleta_redonda" }.Contains(key))
