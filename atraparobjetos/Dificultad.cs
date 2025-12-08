@@ -114,11 +114,20 @@ namespace atraparobjetos
         {
             if (string.IsNullOrWhiteSpace(objeto)) return 0;
             var key = NormalizarNombre(objeto);
-            if (key == "cupcake_dorado") return 5;
-            if (key == "pastel_quemado") return -5;
-            if (ObtenerObjetosPermitidos().Contains(key)) return 1;
+
+            // Objetos especiales
+            if (key == "cupcake_dorado") return 5;      // bueno especial
+            if (key == "pastel_quemado") return -5;     // malo especial
+            if (key == "pastel_malo") return -1;        // malo clásico
+
+            // Objetos buenos normales
+            if (new[] { "pastel_rosa", "pastel_chocolate", "cupcake", "dona_rosada", "galleta_redonda" }.Contains(key))
+                return 1;
+
+            // cualquier otro: 0 puntos
             return 0;
         }
+
 
         public static bool EsObjetoPermitido(string objeto)
         {
